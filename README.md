@@ -3,7 +3,12 @@ A monitoring template for Freeswitch via Zabbix
 
 This repo has the monitoring scripts and templates for monitoring Freeswitch via Zabbix.
 
-Currently, it will detect the active calls on a gateway as well as if the freeswitch systemd service is running.
+Currently, it will
+  - automatically discover all gateways on your freeswitch system
+  - log the inbound and outbound calls for each gateway
+  - detect the status of the freeswitch service via systemd
+  - log all registrations on the system (this includes gateways) in a single item
+  - log all configured extensions (FusionPBX only)
 
 ## Install
 ### Step 1

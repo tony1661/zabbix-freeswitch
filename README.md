@@ -12,7 +12,7 @@ Currently, it will
 
 ## Install
 ### Step 1
-To install, take the freeswitch.conf file in this repo and save it to the /etc/zabbix/zabbix_agentd.d/ folder.
+To install, take the `freeswitch.conf` and `fusionpbx.conf` file in this repo and save it to the `/etc/zabbix/zabbix_agentd.d/` folder.
 
 ### Step 2
 Next, upload the zabbix templates in this repo to your Zabbix server. This can be done by doing to **Configuration>Templates** and clicking the **Import** butto

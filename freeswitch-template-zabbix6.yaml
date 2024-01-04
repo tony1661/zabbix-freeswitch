@@ -1,6 +1,6 @@
 zabbix_export:
   version: '6.0'
-  date: '2024-01-02T21:58:12Z'
+  date: '2024-01-04T16:09:01Z'
   groups:
     - uuid: 7df96b18c230490a9a0a9e2307226338
       name: Templates
@@ -17,18 +17,26 @@ zabbix_export:
       groups:
         - name: Templates
       items:
+        - uuid: a2dd4c259f9445a5a9eb80abff84774a
+          name: Registrations
+          key: freeswitch.registrations
+          delay: 10m
+          description: 'This item will include extensions as well as gateways that have registrations'
+          tags:
+            - tag: Application
+              value: Freeswitch
         - uuid: 28e4d34dcdc04fe7ae5de80cd96bc60f
           name: 'Service: Freeswitch'
-          key: 'system.run["systemctl status freeswitch | grep -q running;echo $?"]'
+          key: freeswitch.service
           delay: 5m
           tags:
             - tag: Application
               value: Freeswitch
           triggers:
             - uuid: 5f94e59ea6104e95b4ef53ed8a32eb08
-              expression: 'last(/Freeswitch/system.run["systemctl status freeswitch | grep -q running;echo $?"])<>0'
+              expression: last(/Freeswitch/freeswitch.service)<>0
               recovery_mode: RECOVERY_EXPRESSION
-              recovery_expression: 'last(/Freeswitch/system.run["systemctl status freeswitch | grep -q running;echo $?"])=0'
+              recovery_expression: last(/Freeswitch/freeswitch.service)=0
               name: 'Check: Freeswitch Service'
       discovery_rules:
         - uuid: 8b66f90a2e35454ab3e2a1629731511a
@@ -50,3 +58,19 @@ zabbix_export:
               tags:
                 - tag: Application
                   value: Freeswitch
+          graph_prototypes:
+            - uuid: ec28e70bb7c94559afd0c524ea1d11e2
+              name: 'Total Calls {#GATEWAY} ({#UUID})'
+              ymin_type_1: FIXED
+              graph_items:
+                - color: 1A7C11
+                  calc_fnc: ALL
+                  item:
+                    host: Freeswitch
+                    key: 'freeswitch.inbound[{#GATEWAY}]'
+                - sortorder: '1'
+                  color: '274482'
+                  calc_fnc: ALL
+                  item:
+                    host: Freeswitch
+                    key: 'freeswitch.outbound[{#UUID}]'

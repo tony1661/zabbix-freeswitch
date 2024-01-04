@@ -8,12 +8,7 @@ zabbix_export:
     - uuid: 4379cb7e68c3440ba4f23ba239607214
       template: Freeswitch
       name: Freeswitch
-      description: |
-        Freeswitch template created by MXSIP IT Team
-        
-        Requires the following to be added to the /etc/zabbix/zabbix_agend.conf file:
-        
-        AllowKey=system.run["systemctl status freeswitch | grep -q running;echo $?"]
+      description:
       groups:
         - name: Templates
       items:

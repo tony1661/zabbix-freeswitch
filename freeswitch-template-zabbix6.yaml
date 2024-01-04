@@ -1,6 +1,6 @@
 zabbix_export:
   version: '6.0'
-  date: '2024-01-04T16:09:01Z'
+  date: '2024-01-04T16:10:04Z'
   groups:
     - uuid: 7df96b18c230490a9a0a9e2307226338
       name: Templates
@@ -8,7 +8,6 @@ zabbix_export:
     - uuid: 4379cb7e68c3440ba4f23ba239607214
       template: Freeswitch
       name: Freeswitch
-      description:
       groups:
         - name: Templates
       items:

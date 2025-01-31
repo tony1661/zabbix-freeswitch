@@ -1,0 +1,143 @@
+zabbix_export:
+  version: '7.0'
+  template_groups:
+    - uuid: 7df96b18c230490a9a0a9e2307226338
+      name: Templates
+  templates:
+    - uuid: 3e0bbb3d35e1456890ec269359802fc0
+      template: FusionPBX
+      name: FusionPBX
+      groups:
+        - name: Templates
+      items:
+        - uuid: 3a316cb484aa4f858d2dcd38aecaa772
+          name: 'Call Center Callbacks Pending'
+          key: fusionpbx.call_center_callbacks.pending
+          delay: 1h
+          history: 30d
+          trends: '0'
+          tags:
+            - tag: Application
+              value: Freeswitch
+          triggers:
+            - uuid: 33ec554d43c549c9853cebe255cb932a
+              expression: last(/FusionPBX/fusionpbx.call_center_callbacks.pending)>25
+              recovery_mode: RECOVERY_EXPRESSION
+              recovery_expression: last(/FusionPBX/fusionpbx.call_center_callbacks.pending)<25
+              name: 'Callbacks Pendings Critical'
+              priority: HIGH
+              description: |
+                FusionPBX Call Center Callbacks have grown and are not being handled quickly or AT ALL.
+                
+                Investigate why.
+        - uuid: 996b72cbdd8e47f088f7848c249f7a13
+          name: 'Email Queue High Failures'
+          key: fusionpbx.email_queue.failed
+          delay: 10m
+          history: 10d
+          trends: 31d
+          tags:
+            - tag: Application
+              value: Freeswitch
+        - uuid: 64438264b93c4e42a7d4fefe3dbd3dca
+          name: 'Extensions Total'
+          key: fusionpbx.extensions.total
+          delay: 10m
+          history: 30d
+          tags:
+            - tag: Application
+              value: Freeswitch
+        - uuid: f5ea76e26240455a8c47e84751f55d42
+          name: 'Fax Queue Total'
+          key: fusionpbx.fax_queue.total
+          delay: 30m
+          history: 30d
+          trends: '0'
+          units: faxes
+          tags:
+            - tag: Application
+              value: Freeswitch
+          triggers:
+            - uuid: b94403d42a6345a382536b15eb9870e2
+              expression: change(/FusionPBX/fusionpbx.fax_queue.total)>100
+              name: 'Fax Queue Growing Fast'
+              priority: HIGH
+              description: 'Fax queue is growing very fast. Investigate immediately the v_fax_queue table.'
+              manual_close: 'YES'
+        - uuid: 4104c5abaecb4311b7d7e07a5d521657
+          name: 'Message Queue Total'
+          key: fusionpbx.message_queue.total
+          delay: 1d
+          history: 30d
+          trends: '0'
+          tags:
+            - tag: Application
+              value: Freeswitch
+          triggers:
+            - uuid: 9a8c68ea80fa4886b1d42c19098007eb
+              expression: change(/FusionPBX/fusionpbx.message_queue.total)>100
+              name: 'Message Queue Growing Fast'
+              priority: HIGH
+              description: |
+                Message queue is growing very fast. Investigate immediately the v_message_queue table to make sure the bug that causes a loop is not to blame.
+                
+                To temporarily fix this, execute the following command: systemctl restart message_events
+              manual_close: 'YES'
+        - uuid: 94ebf57773d74771846f4a90514d8450
+          name: 'Large Voicemail Boxes'
+          key: 'fusionpbx.voicemail.largemailboxes[100]'
+          delay: 10m
+          history: 30d
+          trends: '0'
+          units: mailboxes
+          description: 'A monitor of the amount of mailboxes that are over 100 messages'
+          tags:
+            - tag: Application
+              value: Freeswitch
+          triggers:
+            - uuid: 088749a9537b4064b95b0f7fda530d43
+              expression: 'last(/FusionPBX/fusionpbx.voicemail.largemailboxes[100])>0'
+              recovery_mode: RECOVERY_EXPRESSION
+              recovery_expression: 'last(/FusionPBX/fusionpbx.voicemail.largemailboxes[100])<=0'
+              name: 'Large Mailboxes'
+              priority: WARNING
+              description: |
+                Large mailboxes have been detected. Please investigate. You may use the following SQL script to identify the mailboxes in question:
+                
+                select vvm.voicemail_uuid,vv.voicemail_description,vd.domain_name ,count(vvm.voicemail_message_uuid)
+                
+                from v_voicemail_messages vvm
+                
+                left join v_voicemails vv on (vvm.voicemail_uuid = vv.voicemail_uuid)
+                left join v_domains vd on (vd.domain_uuid = vvm.domain_uuid)
+                
+                group by vvm.voicemail_uuid, vv.voicemail_description,vd.domain_name having count(vvm.voicemail_message_uuid) > 100
+        - uuid: 959a490322be414bab0af18a541e769b
+          name: 'Voicemail Message Unread Count'
+          key: 'fusionpbx.voicemail.unread[enter-uuid-of-vm-box-here]'
+          delay: 10m
+          history: 30d
+          trends: '0'
+          units: messages
+          description: |
+            This will give you the count of unread voicemail messages in the mailbox.
+            
+            This item should be duplicated, enabled and the UUID should be entered in between the square brackets.
+          tags:
+            - tag: Application
+              value: Freeswitch
+          triggers:
+            - uuid: dd33730a5e1b4200a830c4a3b15b78b4
+              expression: |
+                (
+                last(/FusionPBX/fusionpbx.voicemail.unread[enter-uuid-of-vm-box-here],#1)
+                +
+                last(/FusionPBX/fusionpbx.voicemail.unread[enter-uuid-of-vm-box-here],#2)
+                +
+                last(/FusionPBX/fusionpbx.voicemail.unread[enter-uuid-of-vm-box-here],#3)
+                )>=3
+              recovery_mode: RECOVERY_EXPRESSION
+              recovery_expression: 'last(/FusionPBX/fusionpbx.voicemail.unread[enter-uuid-of-vm-box-here],#1)=0'
+              name: 'Voicemail Alert'
+              status: DISABLED
+              priority: WARNING

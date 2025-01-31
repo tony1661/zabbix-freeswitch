@@ -1,0 +1,85 @@
+zabbix_export:
+  version: '7.0'
+  template_groups:
+    - uuid: 7df96b18c230490a9a0a9e2307226338
+      name: Templates
+  templates:
+    - uuid: 4379cb7e68c3440ba4f23ba239607214
+      template: Freeswitch
+      name: Freeswitch
+      groups:
+        - name: Templates
+      items:
+        - uuid: a2dd4c259f9445a5a9eb80abff84774a
+          name: Registrations
+          key: freeswitch.registrations
+          delay: 2m
+          history: 15d
+          trends: '0'
+          description: 'This item will include extensions as well as gateways that have registrations'
+          tags:
+            - tag: Application
+              value: Freeswitch
+          triggers:
+            - uuid: acea891d94b24ed39bb4cd1a8a20f40b
+              expression: '((last(/Freeswitch/freeswitch.registrations)-last(/Freeswitch/freeswitch.registrations,#2))/last(/Freeswitch/freeswitch.registrations))*100 > 10'
+              recovery_mode: NONE
+              name: 'Registration Loss > 10%'
+              priority: DISASTER
+              description: 'More than 10% of registrations have been lost.'
+              manual_close: 'YES'
+        - uuid: 28e4d34dcdc04fe7ae5de80cd96bc60f
+          name: 'Service: Freeswitch'
+          key: freeswitch.service
+          delay: 5m
+          history: 90d
+          tags:
+            - tag: Application
+              value: Freeswitch
+          triggers:
+            - uuid: 5f94e59ea6104e95b4ef53ed8a32eb08
+              expression: last(/Freeswitch/freeswitch.service)<>0
+              recovery_mode: RECOVERY_EXPRESSION
+              recovery_expression: last(/Freeswitch/freeswitch.service)=0
+              name: 'Check: Freeswitch Service'
+              priority: DISASTER
+      discovery_rules:
+        - uuid: 8b66f90a2e35454ab3e2a1629731511a
+          name: 'Freeswitch Gateway Discovery'
+          key: freeswitch.discover
+          delay: 24h
+          lifetime: 30d
+          enabled_lifetime_type: DISABLE_NEVER
+          item_prototypes:
+            - uuid: 9ead62b8306b4c1e8c747f30ad9fb95a
+              name: 'Inbound Calls {#GATEWAY} ({#UUID})'
+              key: 'freeswitch.inbound[{#GATEWAY}]'
+              history: 90d
+              units: calls
+              tags:
+                - tag: Application
+                  value: Freeswitch
+            - uuid: 6267dcc4674642c28cbbe5d0bc9cf222
+              name: 'Outbound Calls {#GATEWAY} ({#UUID})'
+              key: 'freeswitch.outbound[{#UUID}]'
+              history: 90d
+              units: calls
+              tags:
+                - tag: Application
+                  value: Freeswitch
+          graph_prototypes:
+            - uuid: ec28e70bb7c94559afd0c524ea1d11e2
+              name: 'Total Calls {#GATEWAY} ({#UUID})'
+              ymin_type_1: FIXED
+              graph_items:
+                - color: 1A7C11
+                  calc_fnc: ALL
+                  item:
+                    host: Freeswitch
+                    key: 'freeswitch.inbound[{#GATEWAY}]'
+                - sortorder: '1'
+                  color: '274482'
+                  calc_fnc: ALL
+                  item:
+                    host: Freeswitch
+                    key: 'freeswitch.outbound[{#UUID}]'

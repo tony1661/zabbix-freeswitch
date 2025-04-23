@@ -38,7 +38,15 @@ zabbix_export:
           trends: 31d
           tags:
             - tag: Application
-              value: Freeswitch
+              value: FusionPBX
+          triggers:
+            - uuid: c1af2f536e51408a9e61f208c191f083
+              expression: last(/FusionPBX/fusionpbx.email_queue.failed)>0
+              recovery_mode: NONE
+              name: 'Email Queue Failures'
+              priority: DISASTER
+              description: 'Email Queue has experienced a failure. Investigate why there are emails failing to be sent.'
+              manual_close: 'YES'
         - uuid: 64438264b93c4e42a7d4fefe3dbd3dca
           name: 'Extensions Total'
           key: fusionpbx.extensions.total

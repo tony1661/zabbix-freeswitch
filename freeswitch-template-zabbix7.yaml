@@ -43,6 +43,24 @@ zabbix_export:
               recovery_expression: last(/Freeswitch/freeswitch.service)=0
               name: 'Check: Freeswitch Service'
               priority: DISASTER
+        - uuid: cc5c4d9ba3914c6e959b37e3da259413
+          name: 'SNGREP Running too long'
+          key: sngrep.old
+          delay: 30m
+          history: 5d
+          trends: '0'
+          valuemap:
+            name: 'SNGREP Running too long'
+          tags:
+            - tag: Application
+              value: Freeswitch
+          triggers:
+            - uuid: cdd51dc76ae644119968703bcf96f338
+              expression: last(/Freeswitch/sngrep.old)<>0
+              recovery_mode: RECOVERY_EXPRESSION
+              recovery_expression: last(/Freeswitch/sngrep.old)=0
+              name: 'SNGREP Running too long'
+              description: 'SNGREP running too long on host'
       discovery_rules:
         - uuid: 8b66f90a2e35454ab3e2a1629731511a
           name: 'Freeswitch Gateway Discovery'
@@ -83,3 +101,11 @@ zabbix_export:
                   item:
                     host: Freeswitch
                     key: 'freeswitch.outbound[{#UUID}]'
+      valuemaps:
+        - uuid: 930c693adfa44a2fbfe43d778bd2a44c
+          name: 'SNGREP Running too long'
+          mappings:
+            - value: '0'
+              newvalue: OK
+            - value: '1'
+              newvalue: WARN

@@ -47,6 +47,23 @@ zabbix_export:
               priority: DISASTER
               description: 'Email Queue has experienced a failure. Investigate why there are emails failing to be sent.'
               manual_close: 'YES'
+        - uuid: a6d2644f5c1f4c99925e680ecdb7192d
+          name: 'Email Queue High Waiting Time'
+          key: fusionpbx.email_queue.waiting
+          delay: 10m
+          history: 10d
+          trends: 31d
+          tags:
+            - tag: Application
+              value: FusionPBX
+          triggers:
+            - uuid: 6de0a27fc5914a0a9f9acd33b05df565
+              expression: last(/FusionPBX/fusionpbx.email_queue.waiting)>1200
+              recovery_mode: RECOVERY_EXPRESSION
+              recovery_expression: last(/FusionPBX/fusionpbx.email_queue.waiting)<1200
+              name: 'Email Queue Wait Time Exceeded'
+              priority: DISASTER
+              manual_close: 'YES'
         - uuid: 64438264b93c4e42a7d4fefe3dbd3dca
           name: 'Extensions Total'
           key: fusionpbx.extensions.total

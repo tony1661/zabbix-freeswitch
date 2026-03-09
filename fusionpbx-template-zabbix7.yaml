@@ -47,6 +47,23 @@ zabbix_export:
               priority: DISASTER
               description: 'Email Queue has experienced a failure. Investigate why there are emails failing to be sent.'
               manual_close: 'YES'
+        - uuid: a6d2644f5c1f4c99925e680ecdb7192d
+          name: 'Email Queue High Waiting Time'
+          key: fusionpbx.email_queue.waiting
+          delay: 10m
+          history: 10d
+          trends: 31d
+          tags:
+            - tag: Application
+              value: FusionPBX
+          triggers:
+            - uuid: 6de0a27fc5914a0a9f9acd33b05df565
+              expression: last(/FusionPBX/fusionpbx.email_queue.waiting)>1200
+              recovery_mode: RECOVERY_EXPRESSION
+              recovery_expression: last(/FusionPBX/fusionpbx.email_queue.waiting)<1200
+              name: 'Email Queue Wait Time Exceeded'
+              priority: DISASTER
+              manual_close: 'YES'
         - uuid: 64438264b93c4e42a7d4fefe3dbd3dca
           name: 'Extensions Total'
           key: fusionpbx.extensions.total
@@ -90,6 +107,30 @@ zabbix_export:
                 Message queue is growing very fast. Investigate immediately the v_message_queue table to make sure the bug that causes a loop is not to blame.
                 
                 To temporarily fix this, execute the following command: systemctl restart message_events
+              manual_close: 'YES'
+        - uuid: 7d27872dd99543a7a7c42c29b6f0c6ad
+          name: 'Fusion Restore Message'
+          key: fusionpbx.restore.message
+          delay: 1h
+          value_type: TEXT
+          trends: '0'
+          description: 'This records the messages related to backup status. If any failures occur, this is used to identify which ones.'
+        - uuid: 6b83318f07354a88b19d0ee4409b4312
+          name: 'Fusion Restore Status'
+          key: fusionpbx.restore.status
+          delay: 1h
+          description: |
+            This Item gathers the backup status in the form of a status code.
+            0 - Success
+            1 - Failure
+          triggers:
+            - uuid: ac9fc49531c64caeaf7e5931d9cb88d6
+              expression: last(/FusionPBX/fusionpbx.restore.status)=1
+              recovery_mode: RECOVERY_EXPRESSION
+              recovery_expression: last(/FusionPBX/fusionpbx.restore.status)=0
+              name: 'Fusion Restore Failed'
+              priority: DISASTER
+              description: 'This trigger is used to alert us of Restore Failures for Fusion 2 and Fusion 3'
               manual_close: 'YES'
         - uuid: 94ebf57773d74771846f4a90514d8450
           name: 'Large Voicemail Boxes'
